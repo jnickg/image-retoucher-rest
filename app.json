@@ -1,0 +1,17 @@
+{
+  "name": "Image Retoucher REST",
+  "description": "A REST API ",
+  "image": "heroku/python",
+  "repository": "https://github.com/jnickg/image-retoucher-rest",
+  "keywords": ["python", "flask" ],
+  "addons": [ "heroku-postgresql" ],
+  "env": {
+  },
+  "environments": {
+    "test": {
+      "scripts": {
+        "test": "pytest ."
+      }
+    }
+  }
+}
