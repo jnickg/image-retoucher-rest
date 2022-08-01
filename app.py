@@ -242,8 +242,10 @@ def make_collage(images:List[np.ndarray]) -> np.ndarray:
     COLLAGE_SQUARE_DIMS = (COLLAGE_SQUARE_SIDE, COLLAGE_SQUARE_SIDE)
     COLLAGE_SQUARE_EMPTY = (COLLAGE_SQUARE_SIDE, COLLAGE_SQUARE_SIDE, 3)
     images = [resize_image(_img, COLLAGE_SQUARE_DIMS) for _img in images]
+    added_blank = False
     if (len(images) % 2) != 0:
         images.append(np.zeros(COLLAGE_SQUARE_EMPTY))
+        added_blank = True
     COLLAGE_RATIO = 3.0 / 5.0
     img_count = len(images)
     factors = []
@@ -265,7 +267,7 @@ def make_collage(images:List[np.ndarray]) -> np.ndarray:
             y = h_i * COLLAGE_SQUARE_SIDE
             x = w_i * COLLAGE_SQUARE_SIDE
             collage[y:y+COLLAGE_SQUARE_SIDE,x:x+COLLAGE_SQUARE_SIDE,:] = images[idx]
-            if idx != img_count - 1:
+            if added_blank and idx != img_count - 1:
                 collage = cv.putText(collage, f'{idx}', (x, y+50), fontFace=cv.FONT_HERSHEY_SIMPLEX, fontScale=2.0, color=(0,255,0), thickness=5)
     STATIC_COLLAGE = collage
     return collage
