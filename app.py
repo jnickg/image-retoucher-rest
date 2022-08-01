@@ -150,12 +150,16 @@ COMMAND = {
 }
 
 STATIC_IMAGES = {
-    0 : 'static/belgium.jpg',
-    1 : 'static/helens.jpg',
-    2 : 'static/japan.jpg',
-    3 : 'static/lake.jpg',
-    4 : 'static/moon.jpg',
-    5 : 'static/snowman.jpg',
+    0 : 'static/belgium.png',
+    1 : 'static/car.png',
+    2 : 'static/dragon.png',
+    3 : 'static/helens.png',
+    4 : 'static/japan.png',
+    5 : 'static/lake.png',
+    6 : 'static/moon.png',
+    7 : 'static/temple.png',
+    8 : 'static/trees.png',
+    9 : 'static/wizard.png'
 }
 
 STATIC_COLLAGE = None
