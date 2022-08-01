@@ -265,7 +265,8 @@ def make_collage(images:List[np.ndarray]) -> np.ndarray:
             y = h_i * COLLAGE_SQUARE_SIDE
             x = w_i * COLLAGE_SQUARE_SIDE
             collage[y:y+COLLAGE_SQUARE_SIDE,x:x+COLLAGE_SQUARE_SIDE,:] = images[idx]
-            collage = cv.putText(collage, f'{idx}', (x, y+50), fontFace=cv.FONT_HERSHEY_SIMPLEX, fontScale=2.0, color=(0,255,0), thickness=5)
+            if idx != img_count - 1:
+                collage = cv.putText(collage, f'{idx}', (x, y+50), fontFace=cv.FONT_HERSHEY_SIMPLEX, fontScale=2.0, color=(0,255,0), thickness=5)
     STATIC_COLLAGE = collage
     return collage
 
