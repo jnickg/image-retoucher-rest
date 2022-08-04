@@ -1,6 +1,9 @@
 # Image Retoucher REST
 _REST API powering the Alexa "Image Retoucher" skill._
 
+* Deployed at [`https://image-retoucher-rest.herokuapp.com/`](https://image-retoucher-rest.herokuapp.com/)
+* Corresponding Alexa Skill: [`https://github.com/jnickg/image-retoucher-skill/`](https://github.com/jnickg/image-retoucher-skill/)
+
 ## Supported
 * Currently hosts a few static images to test with, enumerated via `/api/image/static`
 * Supports commands enumerated via `/meta/help/commands`
@@ -10,6 +13,6 @@ _REST API powering the Alexa "Image Retoucher" skill._
 ## Not yet supported
 * `POST` to `/api/image` with image data to upload it to the backend DB. Returns a JSON object whose `url` field has the URL of the newly-available image
 * `POST` to `/valid/render/url/save` to render that image and add it to the backend DB
-
+* Comparison of image `X` with two different changesets. Right now you can compare a single changeset with the un-changed image.
 # Support
 Open an Issue on this repository for questions or bugs.
