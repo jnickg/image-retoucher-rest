@@ -267,14 +267,15 @@ def get_image(id:int) -> np.ndarray:
         STATIC_IMAGEDATA[id] = img
     return img
 
-def encode_image(img: np.ndarray) -> any:
+def encode_image(img: np.ndarray, download_name=None) -> any:
     _success, _buffer = cv.imencode('.png', img)
     if not _success:
         return Response(ERROR_PAGE, 500)
 
     return send_file(
         io.BytesIO(_buffer),
-        mimetype='image/png'
+        mimetype='image/png',
+        download_name=download_name
     )
 
 def resize_image(img, size=(28,28)):
@@ -439,7 +440,7 @@ def api_image_id_get_path(id:int, path):
         app.logger.error(f'Failed to execute commands in URL. Error: {e}')
         return Response(ERROR_PAGE, 500)
 
-    return encode_image(_img)
+    return encode_image(_img, download_name=f"{id}_{str(path).replace('/','_')}.png")
 
 @app.route("/api/image/<int:id>/<path:path>/comparison")
 def api_image_id_get_path_comparison(id:int, path):
@@ -458,7 +459,7 @@ def api_image_id_get_path_comparison(id:int, path):
         return Response(ERROR_PAGE, 500)
 
     _stack = np.hstack((_orig, _img))
-    return encode_image(_stack)
+    return encode_image(_stack, download_name=f"{id}_{str(path).replace('/','_')}_comparison.png")
 
 @app.route("/api/image/<int:id>/<path:path>/save", methods=['POST'])
 def api_image_id_path_save(id:int, path):
