@@ -101,7 +101,8 @@ def apply_colortransfer(src: np.ndarray, tgt_id:int):
 
 def apply_grayscale(src: np.ndarray):
     gray = cv.cvtColor(src, cv.COLOR_BGR2GRAY)
-    return gray
+    bgr_gray = cv.cvtColor(gray, cv.COLOR_GRAY2BGR)
+    return bgr_gray # Preserve 3-channel format so other operations behave as expected
 
 def apply_sharpen(src: np.ndarray):
     src_f = src.astype(dtype=np.float32) / 255.0
