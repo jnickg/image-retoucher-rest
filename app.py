@@ -6,6 +6,7 @@ from time import perf_counter
 from flask import Flask, Response, url_for, request, jsonify, send_file
 import numpy as np
 import cv2 as cv
+from scipy.interpolate import UnivariateSpline
 import postgres
 
 #
@@ -25,6 +26,9 @@ if __name__ != "__main__":
 #
 # Helpers & Constants
 #
+def spline_lut(x, y):
+  spline = UnivariateSpline(x, y)
+  return spline(range(256))
 
 def normalize_data(data):
     data_min = np.min(data)
@@ -95,9 +99,41 @@ def apply_colortransfer(src: np.ndarray, tgt_id:int):
     result = (result * 255.0).astype(dtype=np.uint8)
     return result
 
+def apply_grayscale(src: np.ndarray):
+    gray = cv.cvtColor(src, cv.COLOR_BGR2GRAY)
+    return gray
+
+def apply_sharpen(src: np.ndarray):
+    src_f = src.astype(dtype=np.float32) / 255.0
+    kernel = np.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
+    result_f = cv.filter2D(src_f, -1, kernel)
+    result_f = np.clip(result_f, a_min=0.0, a_max=1.0)
+    return (result_f * 255.0).astype(dtype=np.uint8)
+
+def apply_hdr(src: np.ndarray):
+    return cv.detailEnhance(src, sigma_s=12, sigma_r=0.15)
+
 def adjust_nop(img: np.ndarray, cmd, val):
     app.logger.debug(f'No-op executed for command \'{cmd}\' with parameter \'{val}\'')
     return img
+
+def apply_summer_filter(img: np.ndarray):
+    increase_lut = spline_lut([0, 64, 128, 256], [0, 80, 160, 256])
+    decrease_lut = spline_lut([0, 64, 128, 256], [0, 50, 100, 256])
+    _b, _g, _r  = cv.split(img)
+    _r = cv.LUT(_r, increase_lut).astype(np.uint8)
+    _b = cv.LUT(_b, decrease_lut).astype(np.uint8)
+    sum = cv.merge((_b, _g, _r ))
+    return sum
+
+def apply_winter_filter(img: np.ndarray):
+    increase_lut = spline_lut([0, 64, 128, 256], [0, 80, 160, 256])
+    decrease_lut = spline_lut([0, 64, 128, 256], [0, 50, 100, 256])
+    _b, _g, _r  = cv.split(img)
+    _r = cv.LUT(_r, decrease_lut).astype(np.uint8)
+    _b = cv.LUT(_b, increase_lut).astype(np.uint8)
+    sum = cv.merge((_b, _g, _r ))
+    return sum
 
 class CommandDescriptor:
     def __init__(self,
@@ -146,6 +182,36 @@ COMMAND = {
         func = lambda i, tgt_id: apply_colortransfer(i, int(tgt_id)),
         param_type = int,
         param_range = (0, None)
+    ),
+    'gray': CommandDescriptor(
+        description="Apply color2gray algorithm using canonical OpenCV algorithm.",
+        func = lambda i, _: apply_grayscale(i),
+        param_type = type(None),
+        param_range = (None, None)
+    ),
+    'sharpen': CommandDescriptor(
+        description="Apply basic Laplacian sharpen.",
+        func = lambda i, _: apply_sharpen(i),
+        param_type = type(None),
+        param_range = (None, None)
+    ),
+    'hdr': CommandDescriptor(
+        description="Apply a single-image HDR-ish algorithm to enhance detail.",
+        func = lambda i, _: apply_hdr(i),
+        param_type = type(None),
+        param_range = (None, None)
+    ),
+    'summer': CommandDescriptor(
+        description="Apply a summery color filter.",
+        func = lambda i, _: apply_summer_filter(i),
+        param_type = type(None),
+        param_range = (None, None)
+    ),
+    'winter': CommandDescriptor(
+        description="Apply a wintry color filter.",
+        func = lambda i, _: apply_winter_filter(i),
+        param_type = type(None),
+        param_range = (None, None)
     )
 }
 
@@ -401,14 +467,5 @@ def api_image_id_path_save(id:int, path):
     if isinstance(_img, Response):
         return _img
 
-    try:
-        app.logger.info(f'Processing path: {path}')
-        _img = process_path(_img, path)
-    except Exception as e:
-        app.logger.error(f'Failed to execute commands in URL. Error: {e}')
-        return Response(ERROR_PAGE, 500)
-
-    _id = 0 # TODO upload image to postgres
-    return jsonify({
-        "url": url_for(api_image_id_get.__name__, id=_id)
-    })
+    # Not implemented
+    return Response(ERROR_PAGE, 501)
