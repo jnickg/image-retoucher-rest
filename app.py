@@ -417,7 +417,7 @@ def api_image_static_collage():
 
 @app.route("/api/image/<int:id>/")
 def api_image_id_get(id:int):
-    _img = get_image(id)
+    _img = get_image(id).copy()
     if _img is None:
         return Response(ERROR_PAGE, 500)
     if isinstance(_img, Response):
@@ -427,7 +427,7 @@ def api_image_id_get(id:int):
 
 @app.route("/api/image/<int:id>/<path:path>")
 def api_image_id_get_path(id:int, path):
-    _img = get_image(id)
+    _img = get_image(id).copy()
     if _img is None:
         return Response(ERROR_PAGE, 500)
     if isinstance(_img, Response):
@@ -444,7 +444,7 @@ def api_image_id_get_path(id:int, path):
 
 @app.route("/api/image/<int:id>/<path:path>/comparison")
 def api_image_id_get_path_comparison(id:int, path):
-    _img = get_image(id)
+    _img = get_image(id).copy()
     if _img is None:
         return Response(ERROR_PAGE, 500)
     if isinstance(_img, Response):
